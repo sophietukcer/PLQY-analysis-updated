@@ -104,7 +104,7 @@ def trim_spectrum(data: np.ndarray, config_name: str) -> np.ndarray:
     return data
 
 
-def scale_baseline_and_time(intensity: np.ndarray, integration_time_ms: float, wavelengths: np.ndarray, laser_range: Tuple) -> np.ndarray:
+def scale_baseline_and_time(intensity: np.ndarray, integration_time_ms: float) -> np.ndarray:
     """Subtract baseline noise floor and normalize by integration time.
 
     Parameters
@@ -113,10 +113,6 @@ def scale_baseline_and_time(intensity: np.ndarray, integration_time_ms: float, w
         1D array of intensity values.
     integration_time_ms : float
         Integration time in milliseconds.
-    wavelengths : np.ndarray
-            Corresponding wavelength array.
-    laser_range : Tuple[float, float]
-        (min_wl, max_wl) of the laser band in nm.
 
     Returns
     -------
@@ -127,9 +123,8 @@ def scale_baseline_and_time(intensity: np.ndarray, integration_time_ms: float, w
         logger.warning("Integration time is <= 0 ms (%s). Setting to 1.0 to avoid division by zero.", integration_time_ms)
         integration_time_ms = 1.0
 
-    # Baseline noise estimate from below laser peak (with 10 nm buffer)
-    indices = np.where(wavelengths < laser_range[0] - 10)
-    noise_floor = np.mean(intensity[indices])
+    # Baseline noise estimate from indices 20 to 50
+    noise_floor = np.mean(intensity[20:50])
     return (intensity - noise_floor) / integration_time_ms
 
 
@@ -213,6 +208,12 @@ def load_and_interpolate_calibration(
 
     skip_rows = find_data_start_row(path)
     data = np.loadtxt(path, skiprows=skip_rows)
+
+    if data.ndim == 1:
+        # Single column of factors matching detector pixel count
+        if len(data) != len(target_wavelengths):
+            logger.warning("1D calibration length (%d) mismatch with sample (%d).", len(data), len(target_wavelengths))
+        return data
 
     cal_wl = data[:, 0]
     cal_factors = data[:, 1]
