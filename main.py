@@ -31,7 +31,6 @@ logger = logging.getLogger("PLQY_App")
     default_size=(850, 700),
     show_success_modal=False,
     return_to_config=True,
-    navigation="TABBED",
     tabbed_groups=True,
 )
 def main():
@@ -53,7 +52,7 @@ def main():
         "--short_time",
         default=100,
         type=float,
-        help="Integration time for measurement in ms",
+        help="Short integration time in ms",
     )
     req.add_argument(
         "-cal",
@@ -63,10 +62,8 @@ def main():
         help="Path to calibration file",
         gooey_options={"wildcard": "Text files (*.txt)|*.txt|All files (*.*)|*.*"},
     )
-
-    # Secondary Flags & Settings
-    opt = parser.add_argument_group("2. Workflow Options", gooey_options={"columns": 2})
-    opt.add_argument(
+  
+    req.add_argument(
         "-c",
         "--common",
         action="store_true",
@@ -74,7 +71,7 @@ def main():
         help="Use common background ('bckg.txt') and empty ('empty.txt') files in directory.",
     )
 
-    opt.add_argument(
+    req.add_argument(
         "-sl",
         "--stray_light",
         action="store_true",
@@ -82,9 +79,7 @@ def main():
         help="Removes stray light background (Recommended).",
     )
 
-    # Wavelength Bands Group
-    bands = parser.add_argument_group("3. Wavelength Bands (nm)", gooey_options={"columns": 3})
-    bands.add_argument(
+    req.add_argument(
         "-lr",
         "--laser_range",
         nargs=2,
@@ -92,7 +87,7 @@ def main():
         type=float,
         help="Laser band (min max)",
     )
-    bands.add_argument(
+    req.add_argument(
         "-plr",
         "--pl_range",
         nargs=2,
@@ -101,18 +96,15 @@ def main():
         help="PL detection band (min max)",
     )
 
-
-    # Long Integration Options
-    long_grp = parser.add_argument_group("4. Long Integration", gooey_options={"columns": 2})
-    long_grp.add_argument(
+    req.add_argument(
         "-lp",
         "--long_path",
         type=str,
         default="",
         widget="FileChooser",
-        help="Path to long exposure '_in.txt' file (optional)",
+        help="Path to long exposure 'long_in.txt' file",
     )
-    long_grp.add_argument(
+    req.add_argument(
         "-lt",
         "--long_time",
         default=5000,
