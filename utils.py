@@ -85,6 +85,30 @@ def load_spectrum_file(file_path: Union[str, Path]) -> np.ndarray:
 
 def scale_baseline_and_time(intensity: np.ndarray, wavelengths:np.ndarray, laser_range: Tuple[float, float], integration_time_ms: float) -> np.ndarray:
     """Subtract baseline noise floor and normalize by integration time. Baseline subtraction is used in addition to subtraction of a background file to correct for thermal drift over time.
+def trim_spectrum(data: np.ndarray, config_name: str) -> np.ndarray:
+    """Trim outer noisy pixels based on spectrometer hardware profile.
+
+        Parameters
+    ----------
+    data : np.ndarray
+        2D array of spectral data.
+    config_name : str
+        Spectrometer configuration name or identifier.
+
+    Returns
+    -------
+    np.ndarray
+        Trimmed array.
+    """
+    if "QE" in config_name:
+        return data[4:-5, :]
+    elif "Maya" in config_name:
+        return data[5:-6, :]
+    return data
+
+
+def scale_baseline_and_time(intensity: np.ndarray, integration_time_ms: float) -> np.ndarray:
+    """Subtract baseline noise floor and normalize by integration time.
 
     Parameters
     ----------
@@ -166,7 +190,6 @@ def integrate_range(y: np.ndarray, x: np.ndarray, range_bounds: Tuple[float, flo
     """
     mask = (x > range_bounds[0]) & (x < range_bounds[1])
     return float(np.trapezoid(y[mask], x=x[mask]))
-
 
 def load_and_interpolate_calibration(
     cal_file_path: Union[str, Path],
