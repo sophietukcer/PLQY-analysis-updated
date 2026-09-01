@@ -82,9 +82,6 @@ def load_spectrum_file(file_path: Union[str, Path]) -> np.ndarray:
         logger.error("Failed to parse file %s: %s", path.name, err)
         raise ValueError(f"Could not parse spectral file {path.name}") from err
 
-
-def scale_baseline_and_time(intensity: np.ndarray, wavelengths:np.ndarray, laser_range: Tuple[float, float], integration_time_ms: float) -> np.ndarray:
-    """Subtract baseline noise floor and normalize by integration time. Baseline subtraction is used in addition to subtraction of a background file to correct for thermal drift over time.
 def trim_spectrum(data: np.ndarray, config_name: str) -> np.ndarray:
     """Trim outer noisy pixels based on spectrometer hardware profile.
 
@@ -107,7 +104,7 @@ def trim_spectrum(data: np.ndarray, config_name: str) -> np.ndarray:
     return data
 
 
-def scale_baseline_and_time(intensity: np.ndarray, integration_time_ms: float) -> np.ndarray:
+def scale_baseline_and_time(intensity: np.ndarray, integration_time_ms: float, wavelengths: np.ndarray, laser_range: Tuple) -> np.ndarray:
     """Subtract baseline noise floor and normalize by integration time.
 
     Parameters
